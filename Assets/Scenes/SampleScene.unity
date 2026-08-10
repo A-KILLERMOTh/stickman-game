@@ -912,7 +912,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  coyoteTime: 0.03
+  coyoteTime: 0.05
   jumpBufferTime: 0.03
   fallMultiplier: 2
   jumpForce: 10
