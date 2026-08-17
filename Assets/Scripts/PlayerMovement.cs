@@ -23,6 +23,18 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpForce;
     [SerializeField] private InputActionReference jumpAction;
 
+    [SerializeField] private InputActionReference dashAction;
+    [SerializeField] private float dashSpeed = 15f;
+    [SerializeField] private float dashDuration = 0.2f;
+    [SerializeField] private float dashCooldown = 0.5f;
+    private float dashCooldownTimer;
+
+    private float facingDirection = 1f;
+
+    private bool isDashing;
+    private float dashTimer;
+    private bool hasAirDashed;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -33,10 +45,12 @@ public class PlayerMovement : MonoBehaviour
     private void OnEnable()
     {
         jumpAction.action.Enable();
+        dashAction.action.Enable();
     }
     private void OnDisable()
     {
         jumpAction.action.Disable();
+        dashAction.action.Disable();
     }
 
     private void Update()
@@ -46,17 +60,40 @@ public class PlayerMovement : MonoBehaviour
 
         movement.Normalize();
 
+        if (movement.x != 0)
+        {
+            facingDirection = movement.x;
+            
+        }
+
         isGrounded = Physics2D.OverlapCircle(GroundCheck.position, groundCheckRadius, groundLayer) != null;
 
         if (isGrounded)
         {
             coyoteTimeCounter = coyoteTime;
+            hasAirDashed = false;
             
         }
         else
         {
             coyoteTimeCounter -= Time.deltaTime;
             
+        }
+
+      if (dashAction.action.triggered && !isDashing && dashCooldownTimer <= 0 && (isGrounded || !hasAirDashed))
+        {
+            isDashing = true;
+            dashTimer = dashDuration;
+            dashCooldownTimer = dashCooldown;
+
+            if (!isGrounded)
+            {
+                hasAirDashed = true;
+            }
+        }
+        if (dashCooldownTimer > 0)
+        {
+            dashCooldownTimer -= Time.deltaTime;
         }
 
         if(jumpAction.action.triggered)
@@ -82,9 +119,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.linearVelocity = new Vector2 (movement.x * moveSpeed,rb.linearVelocity.y);
+     
+       
 
-         if (rb.linearVelocity.y < 0)
+        if (rb.linearVelocity.y < 0)
     {
         rb.gravityScale = orignalGravity;
     }
@@ -92,5 +130,20 @@ public class PlayerMovement : MonoBehaviour
     {
         rb.gravityScale = orignalGravity * fallMultiplier;
     }
+       if (isDashing)
+    {
+        rb.linearVelocity = new Vector2(facingDirection * dashSpeed, rb.linearVelocity.y);
+
+        dashTimer -= Time.fixedDeltaTime;
+
+        if (dashTimer <= 0)
+        {
+            isDashing = false;
+        }
+
+        return;
+    }
+     
+     rb.linearVelocity = new Vector2 (movement.x * moveSpeed,rb.linearVelocity.y);
     }
 }
