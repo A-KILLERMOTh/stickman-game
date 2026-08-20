@@ -46,11 +46,13 @@ public class PlayerMovement : MonoBehaviour
     {
         jumpAction.action.Enable();
         dashAction.action.Enable();
+       
     }
     private void OnDisable()
     {
         jumpAction.action.Disable();
         dashAction.action.Disable();
+       
     }
 
     private void Update()
@@ -79,6 +81,7 @@ public class PlayerMovement : MonoBehaviour
             coyoteTimeCounter -= Time.deltaTime;
             
         }
+        
 
       if (dashAction.action.triggered && !isDashing && dashCooldownTimer <= 0 && (isGrounded || !hasAirDashed))
         {
@@ -146,4 +149,4 @@ public class PlayerMovement : MonoBehaviour
      
      rb.linearVelocity = new Vector2 (movement.x * moveSpeed,rb.linearVelocity.y);
     }
-}
+};   
