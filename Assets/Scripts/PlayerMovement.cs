@@ -30,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
     private float dashCooldownTimer;
 
     private float facingDirection = 1f;
+    public float FacingDirection => facingDirection;
 
     private bool isDashing;
     private float dashTimer;
