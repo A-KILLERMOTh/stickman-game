@@ -9,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform GroundCheck;
      [SerializeField] private float groundCheckRadius = 0.2f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Animator animator;
     private bool isGrounded;
 
     [SerializeField] private  float coyoteTime = 0.1f;
@@ -62,6 +63,7 @@ public class PlayerMovement : MonoBehaviour
         
 
         movement.Normalize();
+        animator.SetBool("IsMoving", movement.x != 0);
 
         if (movement.x != 0)
         {
