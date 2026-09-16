@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
+    SpriteRenderer spriteRenderer;
     [SerializeField] private float moveSpeed = 5f;
     //prevention from infinite jumping requires a ground check to see if the player is on the ground or not
     //its done by creating a small circle(groundCheckRadius) at the bottom of the player and checking if it collides with the ground layer
@@ -11,6 +12,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Animator animator;
     private bool isGrounded;
+    
 
     [SerializeField] private  float coyoteTime = 0.1f;
     private float coyoteTimeCounter;
@@ -41,6 +43,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         orignalGravity = rb.gravityScale;
+        spriteRenderer = GetComponent<SpriteRenderer>();
         
     }
 
@@ -68,8 +71,10 @@ public class PlayerMovement : MonoBehaviour
         if (movement.x != 0)
         {
             facingDirection = movement.x;
+            spriteRenderer.flipX = facingDirection < 0;
             
         }
+
 
         isGrounded = Physics2D.OverlapCircle(GroundCheck.position, groundCheckRadius, groundLayer) != null;
 

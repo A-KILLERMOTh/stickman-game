@@ -3,7 +3,9 @@ using UnityEngine.InputSystem;
 
 public class PlayerAttack : MonoBehaviour
 {
-    [SerializeField] private InputActionReference attackAction;
+    [SerializeField] Animator animator;
+    [SerializeField] private InputActionReference attack_1;
+
     private PlayerMovement playerMovement;
 
     [SerializeField] private float attackDuration = 0.2f;
@@ -16,20 +18,39 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private float attackCooldown = 0.3f;
     private float attackCooldownTimer;
+    public void DealDamage()
+{
+    Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(
+        attackPoint.position,
+        attackRange,
+        enemyLayer
+    );
+
+    foreach (Collider2D enemy in hitEnemies)
+    {
+        enemy.GetComponent<Enemy>().TakeDamage(
+            attackDamage,
+            playerMovement.FacingDirection
+        );
+    }
+
+    Debug.Log("ATTACK! Hit " + hitEnemies.Length + " enemies.");
+}
 
     private void Awake()
     {
         playerMovement = GetComponent<PlayerMovement>();
+        animator = GetComponent<Animator>();
     }
     private void OnEnable()
     {
-        attackAction.action.Enable();
+        attack_1.action.Enable();
         
     }
 
     private void OnDisable()
     {
-        attackAction.action.Disable();
+        attack_1.action.Disable();
     }
 
     private void Update()
@@ -38,23 +59,12 @@ public class PlayerAttack : MonoBehaviour
         Mathf.Abs(attackPoint.localPosition.x) * playerMovement.FacingDirection,
         attackPoint.localPosition.y,
         attackPoint.localPosition.z);
-        if (attackAction.action.triggered && !isAttacking && attackCooldownTimer <= 0f)
+        if (attack_1.action.triggered && !isAttacking && attackCooldownTimer <= 0f)
         {
             isAttacking = true;
             attackTimer = attackDuration;
             attackCooldownTimer = attackCooldown;
-
-            Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(
-                attackPoint.position,
-                attackRange,
-                enemyLayer
-            );
-            foreach(Collider2D enemy in hitEnemies)
-            {
-                enemy.GetComponent<Enemy>().TakeDamage(attackDamage, playerMovement.FacingDirection);
-            }
-
-            Debug.Log("ATTACK! Hit " + hitEnemies.Length + " enemies.");
+            animator.SetTrigger("Attack_1");
         }
 
         if (isAttacking)

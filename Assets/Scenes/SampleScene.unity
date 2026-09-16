@@ -302,6 +302,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6207a87e635ece4f9c6b4a538bae9ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
+  animator: {fileID: 0}
   health: 100
   knockbackForce: 2
 --- !u!50 &275493876
@@ -1702,7 +1703,7 @@ Transform:
   m_GameObject: {fileID: 885759462}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -39.026, y: 0.474, z: 0}
+  m_LocalPosition: {x: -37.03, y: 0.474, z: 0}
   m_LocalScale: {x: 1.1501, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1753,8 +1754,8 @@ BoxCollider2D:
   m_Offset: {x: 0.018143535, y: -0.4671992}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.0019, y: 0.44}
-    oldSize: {x: 2.56, y: 2.56}
+    pivot: {x: 0.49, y: 0.69}
+    oldSize: {x: 0.92, y: 1.62}
     newSize: {x: 2.56, y: 2.56}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -1903,7 +1904,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36a15b6f65b6a5a4da8db42a9f8588ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttack
-  attackAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  animator: {fileID: 885759471}
+  attack_1: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   attackDuration: 0.2
   attackPoint: {fileID: 1770702535}
   attackRange: 0.5
@@ -2784,7 +2786,7 @@ Transform:
   m_GameObject: {fileID: 1770702534}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.498, y: -0.426, z: 0}
+  m_LocalPosition: {x: 0.75, y: -0.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

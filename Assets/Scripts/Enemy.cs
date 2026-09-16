@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    [SerializeField] Animator animator;
     [SerializeField] private int health = 100;
     [SerializeField] private float knockbackForce = 2f;
     private Rigidbody2D rb;
@@ -13,6 +14,7 @@ public class Enemy : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         orignalColor = spriteRenderer.color;
+        animator = GetComponent<Animator>();
     }
     private void ResetColor()
     {
