@@ -1689,7 +1689,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 2.56, y: 2.56}
+  m_Size: {x: 0.92, y: 1.62}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1756,7 +1756,7 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.49, y: 0.69}
     oldSize: {x: 0.92, y: 1.62}
-    newSize: {x: 2.56, y: 2.56}
+    newSize: {x: 0.92, y: 1.62}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
@@ -1818,6 +1818,7 @@ MonoBehaviour:
   dashSpeed: 15
   dashDuration: 0.2
   dashCooldown: 0.45
+  dashWindPrefab: {fileID: 7796181251122922152, guid: bc5aeca844c35c143a24fa4324b762b1, type: 3}
 --- !u!114 &885759468
 MonoBehaviour:
   m_ObjectHideFlags: 0

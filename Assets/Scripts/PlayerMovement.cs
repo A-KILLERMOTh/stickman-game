@@ -30,6 +30,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float dashSpeed = 15f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 0.5f;
+    [SerializeField] private GameObject dashWindPrefab;
+
+    private GameObject dashWindInstance;
+    private Vector2 dashStartPosition;
+    private SpriteRenderer dashWindRenderer;
     private float dashCooldownTimer;
 
     private float facingDirection = 1f;
@@ -94,8 +99,13 @@ public class PlayerMovement : MonoBehaviour
       if (dashAction.action.triggered && !isDashing && dashCooldownTimer <= 0 && (isGrounded || !hasAirDashed))
         {
             isDashing = true;
+            animator.SetBool("isDashing", true);
             dashTimer = dashDuration;
             dashCooldownTimer = dashCooldown;
+
+            dashStartPosition = transform.position;
+            dashWindInstance = Instantiate(dashWindPrefab);
+            dashWindRenderer = dashWindInstance.GetComponent<SpriteRenderer>();
 
             if (!isGrounded)
             {
@@ -128,12 +138,9 @@ public class PlayerMovement : MonoBehaviour
         
     }
 
-    private void FixedUpdate()
-    {
-     
-       
-
-        if (rb.linearVelocity.y < 0)
+   private void FixedUpdate()
+{
+    if (rb.linearVelocity.y < 0)
     {
         rb.gravityScale = orignalGravity;
     }
@@ -141,20 +148,58 @@ public class PlayerMovement : MonoBehaviour
     {
         rb.gravityScale = orignalGravity * fallMultiplier;
     }
-       if (isDashing)
+
+    if (isDashing)
     {
-        rb.linearVelocity = new Vector2(facingDirection * dashSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(
+            facingDirection * dashSpeed,
+            rb.linearVelocity.y
+        );
+
+        if (dashWindInstance != null)
+        {
+            Vector2 currentPosition = transform.position;
+
+            Vector2 midpoint = (dashStartPosition + currentPosition) / 2f;
+
+            dashWindInstance.transform.position = midpoint;
+
+            float distance = Vector2.Distance(
+                dashStartPosition,
+                currentPosition
+            );
+
+            float originalWidth = 384f / 50f;
+
+            dashWindInstance.transform.localScale = new Vector3(
+                distance / originalWidth,
+                1f,
+                1f
+            );
+
+            dashWindRenderer.flipX = facingDirection < 0;
+        }
 
         dashTimer -= Time.fixedDeltaTime;
 
         if (dashTimer <= 0)
         {
             isDashing = false;
+            animator.SetBool("isDashing", false);
+
+            if (dashWindInstance != null)
+            {
+                Destroy(dashWindInstance);
+            }
         }
 
         return;
     }
-     
-     rb.linearVelocity = new Vector2 (movement.x * moveSpeed,rb.linearVelocity.y);
-    }
-};   
+
+    // Normal movement
+    rb.linearVelocity = new Vector2(
+        movement.x * moveSpeed,
+        rb.linearVelocity.y
+    );
+}
+};
