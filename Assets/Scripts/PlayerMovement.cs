@@ -36,19 +36,23 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 dashStartPosition;
     private SpriteRenderer dashWindRenderer;
     private float dashCooldownTimer;
+    private float dashVerticalVelocity;
 
     private float facingDirection = 1f;
     public float FacingDirection => facingDirection;
 
-    private bool isDashing;
+    private bool isDashing=false;
     private float dashTimer;
     private bool hasAirDashed;
+    [SerializeField] private PlayerAttack playerAttack;
+    [SerializeField] private float attackMoveSpeed = 1f;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         orignalGravity = rb.gravityScale;
         spriteRenderer = GetComponent<SpriteRenderer>();
+        
         
     }
 
@@ -71,7 +75,7 @@ public class PlayerMovement : MonoBehaviour
         
 
         movement.Normalize();
-        animator.SetBool("IsMoving", movement.x != 0);
+        
 
         if (movement.x != 0)
         {
@@ -82,7 +86,9 @@ public class PlayerMovement : MonoBehaviour
 
 
         isGrounded = Physics2D.OverlapCircle(GroundCheck.position, groundCheckRadius, groundLayer) != null;
-
+        animator.SetBool("isGrounded", isGrounded);
+        animator.SetFloat("VerticalVelocity", rb.linearVelocity.y);
+        animator.SetBool("isMoving",movement.x != 0 && isGrounded && !isDashing);
         if (isGrounded)
         {
             coyoteTimeCounter = coyoteTime;
@@ -102,6 +108,7 @@ public class PlayerMovement : MonoBehaviour
             animator.SetBool("isDashing", true);
             dashTimer = dashDuration;
             dashCooldownTimer = dashCooldown;
+            dashVerticalVelocity = rb.linearVelocity.y;
 
             dashStartPosition = transform.position;
             dashWindInstance = Instantiate(dashWindPrefab);
@@ -126,10 +133,10 @@ public class PlayerMovement : MonoBehaviour
             jumpBufferCounter -= Time.deltaTime;
         }
 
-        if (coyoteTimeCounter > 0 && jumpBufferCounter > 0)
+        if (coyoteTimeCounter > 0 && jumpBufferCounter > 0 && !hasAirDashed)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x,jumpForce);
-            Debug.Log("coyote: " + coyoteTimeCounter + " Jump Buffer: " + jumpBufferCounter);
+            
         }
         if (jumpAction.action.WasReleasedThisFrame() && rb.linearVelocity.y > 0)
         {
@@ -142,18 +149,19 @@ public class PlayerMovement : MonoBehaviour
 {
     if (rb.linearVelocity.y < 0)
     {
-        rb.gravityScale = orignalGravity;
+        rb.gravityScale = orignalGravity * fallMultiplier;
     }
     else
     {
-        rb.gravityScale = orignalGravity * fallMultiplier;
+        rb.gravityScale = orignalGravity;
     }
 
     if (isDashing)
-    {
+    {   
+        rb.gravityScale = 0f;
         rb.linearVelocity = new Vector2(
             facingDirection * dashSpeed,
-            rb.linearVelocity.y
+            0f
         );
 
         if (dashWindInstance != null)
@@ -187,6 +195,16 @@ public class PlayerMovement : MonoBehaviour
             isDashing = false;
             animator.SetBool("isDashing", false);
 
+            rb.gravityScale = orignalGravity;
+
+            if (!isGrounded)
+            {
+                rb.linearVelocity = new Vector2(
+                    rb.linearVelocity.x,
+                    Mathf.Min(0f, dashVerticalVelocity)
+                );
+            }
+
             if (dashWindInstance != null)
             {
                 Destroy(dashWindInstance);
@@ -197,9 +215,8 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // Normal movement
-    rb.linearVelocity = new Vector2(
-        movement.x * moveSpeed,
-        rb.linearVelocity.y
-    );
+    float currentMoveSpeed = playerAttack.IsAttacking ? attackMoveSpeed : moveSpeed;
+
+    rb.linearVelocity = new Vector2(movement.x * currentMoveSpeed,rb.linearVelocity.y);
 }
 };

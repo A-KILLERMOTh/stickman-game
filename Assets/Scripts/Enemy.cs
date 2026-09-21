@@ -8,7 +8,7 @@ public class Enemy : MonoBehaviour
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private Color orignalColor;
-
+    
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();

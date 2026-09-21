@@ -4,13 +4,14 @@ using UnityEngine.InputSystem;
 public class PlayerAttack : MonoBehaviour
 {
     [SerializeField] Animator animator;
-    [SerializeField] private InputActionReference attack_1;
+    [SerializeField] private InputActionReference attackAction;
+    public bool IsAttacking => isAttacking;
 
     private PlayerMovement playerMovement;
-
-    [SerializeField] private float attackDuration = 0.2f;
     private bool isAttacking;
-    private float attackTimer;
+    private int comboStep = 0;
+    private bool attackQueued = false;
+    private bool canQueueNextAttack = false;
 
     [SerializeField] private Transform attackPoint;
     [SerializeField] private float attackRange = 0.5f;
@@ -36,6 +37,51 @@ public class PlayerAttack : MonoBehaviour
 
     Debug.Log("ATTACK! Hit " + hitEnemies.Length + " enemies.");
 }
+    private void StartAttack()
+{
+    isAttacking = true;
+
+    comboStep++;
+
+    if (comboStep > 3)
+        comboStep = 1;
+
+    
+    canQueueNextAttack = false;
+    attackQueued = false;
+    Debug.Log("Starting attack combo step: " + comboStep);
+    animator.SetInteger("AttackIndex", comboStep);
+    animator.SetTrigger("Attack");
+
+    attackQueued = false;
+}
+    public void OpenComboWindow()
+{
+    canQueueNextAttack = true;
+}
+
+    public void CloseComboWindow()
+{
+    canQueueNextAttack = false;
+}
+    public void AttackFinished()
+{
+    Debug.Log("ATTACK FINISHED - COMBO STEP: " + comboStep);
+    if (attackQueued && comboStep < 3)
+    {
+        StartAttack();
+    }
+    else
+    {
+        isAttacking = false;
+        comboStep = 0;
+        attackQueued = false;
+        attackCooldownTimer = attackCooldown;
+        canQueueNextAttack = false;
+        animator.SetInteger("AttackIndex",0);
+    }
+}
+
 
     private void Awake()
     {
@@ -44,13 +90,13 @@ public class PlayerAttack : MonoBehaviour
     }
     private void OnEnable()
     {
-        attack_1.action.Enable();
+        attackAction.action.Enable();
         
     }
 
     private void OnDisable()
     {
-        attack_1.action.Disable();
+        attackAction.action.Disable();
     }
 
     private void Update()
@@ -59,27 +105,22 @@ public class PlayerAttack : MonoBehaviour
         Mathf.Abs(attackPoint.localPosition.x) * playerMovement.FacingDirection,
         attackPoint.localPosition.y,
         attackPoint.localPosition.z);
-        if (attack_1.action.triggered && !isAttacking && attackCooldownTimer <= 0f)
-        {
-            isAttacking = true;
-            attackTimer = attackDuration;
-            attackCooldownTimer = attackCooldown;
-            animator.SetTrigger("Attack_1");
-        }
-
-        if (isAttacking)
-        {
-            attackTimer -= Time.deltaTime;
-
-            if (attackTimer <= 0f)
+        if (attackAction.action.triggered)
+        {   
+            if (!isAttacking && attackCooldownTimer <= 0f)
             {
-                isAttacking = false;
+                StartAttack();
+            }
+            else if (isAttacking && canQueueNextAttack)
+            {
+                attackQueued = true;
             }
         }
-        if (attackCooldownTimer > 0f)
+        if(attackCooldownTimer > 0f)
         {
             attackCooldownTimer -= Time.deltaTime;
         }
+
     }
 
     private void OnDrawGizmosSelected()
