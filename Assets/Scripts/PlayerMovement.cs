@@ -46,7 +46,16 @@ public class PlayerMovement : MonoBehaviour
     private bool hasAirDashed;
     [SerializeField] private PlayerAttack playerAttack;
     [SerializeField] private float attackMoveSpeed = 1f;
-
+    [SerializeField] private float knockbackDuration = 0.2f;
+    private float knockbackTimer;
+    private bool isKnockedback;
+    public void ApplyKnockback(float direction,float force)
+    {   
+        isKnockedback = true;
+        knockbackTimer = knockbackDuration;
+        rb.linearVelocity = new Vector2(force * direction, rb.linearVelocity.y);
+        
+    }
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -88,7 +97,7 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(GroundCheck.position, groundCheckRadius, groundLayer) != null;
         animator.SetBool("isGrounded", isGrounded);
         animator.SetFloat("VerticalVelocity", rb.linearVelocity.y);
-        animator.SetBool("isMoving",movement.x != 0 && isGrounded && !isDashing);
+        animator.SetBool("isMoving",movement.x != 0 && isGrounded && !isDashing && !isKnockedback);
         if (isGrounded)
         {
             coyoteTimeCounter = coyoteTime;
@@ -212,6 +221,15 @@ public class PlayerMovement : MonoBehaviour
         }
 
         return;
+    }
+    if (isKnockedback)
+    {
+        knockbackTimer -= Time.fixedDeltaTime;
+        if (knockbackTimer <= 0)
+        {
+            isKnockedback = false;
+        }
+        return; // Skip normal movement while knockedback
     }
 
     // Normal movement

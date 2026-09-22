@@ -214,7 +214,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.113617, y: 1}
   m_EdgeRadius: 0
 --- !u!212 &275493873
 SpriteRenderer:
@@ -302,9 +302,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6207a87e635ece4f9c6b4a538bae9ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  animator: {fileID: 0}
+  animator: {fileID: 885759471}
   health: 100
   knockbackForce: 2
+  EnemyCollider: {fileID: 275493872}
+  damageCooldown: 1
 --- !u!50 &275493876
 Rigidbody2D:
   serializedVersion: 5
@@ -1628,6 +1630,7 @@ GameObject:
   - component: {fileID: 885759468}
   - component: {fileID: 885759470}
   - component: {fileID: 885759471}
+  - component: {fileID: 885759472}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1821,6 +1824,7 @@ MonoBehaviour:
   dashWindPrefab: {fileID: 7796181251122922152, guid: bc5aeca844c35c143a24fa4324b762b1, type: 3}
   playerAttack: {fileID: 885759470}
   attackMoveSpeed: 1
+  knockbackDuration: 0.2
 --- !u!114 &885759468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1938,6 +1942,22 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &885759472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 885759462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbf5a53c48527e34db0074895fe09f5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  maxHealth: 100
+  animator: {fileID: 885759471}
+  playerCollider: {fileID: 885759465}
+  knockbackForce: 5
 --- !u!1 &1169509162
 GameObject:
   m_ObjectHideFlags: 0

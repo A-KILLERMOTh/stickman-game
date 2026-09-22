@@ -35,7 +35,7 @@ public class PlayerAttack : MonoBehaviour
         );
     }
 
-    Debug.Log("ATTACK! Hit " + hitEnemies.Length + " enemies.");
+
 }
     private void StartAttack()
 {
@@ -49,7 +49,6 @@ public class PlayerAttack : MonoBehaviour
     
     canQueueNextAttack = false;
     attackQueued = false;
-    Debug.Log("Starting attack combo step: " + comboStep);
     animator.SetInteger("AttackIndex", comboStep);
     animator.SetTrigger("Attack");
 
@@ -66,7 +65,7 @@ public class PlayerAttack : MonoBehaviour
 }
     public void AttackFinished()
 {
-    Debug.Log("ATTACK FINISHED - COMBO STEP: " + comboStep);
+    
     if (attackQueued && comboStep < 3)
     {
         StartAttack();
