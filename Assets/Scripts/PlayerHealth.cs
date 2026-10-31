@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -10,17 +11,30 @@ public class PlayerHealth : MonoBehaviour
     
     [SerializeField] private float knockbackForce = 5f;
     private PlayerMovement playerMovement;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip BlockHitSound;
     
     private int currentHealth;
+    private bool isBlocking = false;
+    [SerializeField] private InputActionReference shieldAction;
 
-
+    void OnEnable()
+    {
+        shieldAction.action.Enable();
+    }
+    void OnDisable()
+    {
+        shieldAction.action.Disable();
+    }
     void Awake()
     {
+        
         currentHealth = maxHealth;
         animator = GetComponent<Animator>();
         playerCollider = GetComponent<BoxCollider2D>();
         
         playerMovement = GetComponent<PlayerMovement>();
+        audioSource = GetComponentInChildren<AudioSource>();
 
     }
     void Start()
@@ -34,14 +48,26 @@ public class PlayerHealth : MonoBehaviour
     }
     public void TakeDamage(int damage,float direction)
     {
-        currentHealth -= damage;
+        if(isBlocking == false)
+        {   
+            currentHealth -= damage;
 
-        animator.SetTrigger("Hurt");
+            animator.SetTrigger("Hurt");
 
-        Debug.Log("Player took " + damage + " damage. Current health: " + currentHealth);
-        
-        playerMovement.ApplyKnockback(direction, knockbackForce);
-        
+            Debug.Log("Player took " + damage + " damage. Current health: " + currentHealth);
+            
+            playerMovement.ApplyKnockback(direction, knockbackForce);
+            
+        }
+        else
+        {
+            //player blocked the attack with shield.
+            playerMovement.ApplyKnockback(direction, knockbackForce / 2f); 
+            // Apply knockback in the same direction with reduced force
+            animator.SetBool("isBlocking", false);
+            audioSource.PlayOneShot(BlockHitSound);
+
+        }
         
         if (currentHealth <= 0)
         {
@@ -53,7 +79,20 @@ public class PlayerHealth : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if(shieldAction.action.triggered)
+        {
+            isBlocking = true;
+            Debug.Log("Player is blocking.");
+            animator.SetBool("isBlocking", true);
+            
+        }
+        if(shieldAction.action.WasReleasedThisFrame())
+        {
+            isBlocking = false;
+            Debug.Log("Player stopped blocking.");
+            animator.SetBool("isBlocking", false);
+            
+        }
 
     }
 }
