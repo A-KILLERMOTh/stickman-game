@@ -4,17 +4,18 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] Animator animator;
     [SerializeField] private int health = 100;
-    [SerializeField] private float knockbackForce = 2f;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private Color orignalColor;
     [SerializeField] public BoxCollider2D EnemyCollider;
+    [SerializeField] private float knockbackFromPlayer = 5f;
     [SerializeField] private float attackCooldown = 1f;
     private float attackCooldownTimer;
     private float damageCooldownTimer;
     private PlayerHealth playerHealth;
     private float playerKnockbackDirection;
     [SerializeField]private  Transform player;
+    [SerializeField] private LayerMask playerLayer;
     [SerializeField] private float detectionRange = 8f;
     [SerializeField] private float stoppingDistance = 1.5f;
     [SerializeField] private float moveSpeed = 2f;
@@ -37,6 +38,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float attackRange = 2f;
     private int attackIndex = 1;
     private bool isAttacking = false;
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private float attackHitRadius = 1f;
     
     
     private void Awake()
@@ -60,7 +63,7 @@ public class Enemy : MonoBehaviour
         spriteRenderer.color = Color.red;
         Invoke(nameof(ResetColor), 0.1f);
 
-        rb.linearVelocity = new Vector2(knockbackForce * direction, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(knockbackFromPlayer * direction, rb.linearVelocity.y);
         
 
         if (health <= 0)
@@ -74,10 +77,10 @@ public class Enemy : MonoBehaviour
         Debug.Log("Enemy died!");
         Destroy(gameObject);
     }
-    private void GiveDamage(int damage)
+    public void GiveDamage(int damage,int knockbackFromEnemy)
     {
         playerKnockbackDirection = Mathf.Sign(playerHealth.transform.position.x - transform.position.x); // Determine the direction of knockback based on the relative position of the player and enemy
-        playerHealth.TakeDamage(damage,playerKnockbackDirection);
+        playerHealth.TakeDamage(damage,playerKnockbackDirection,knockbackFromEnemy);
     }
     private void startCombo()
     {
@@ -117,6 +120,41 @@ public class Enemy : MonoBehaviour
             
         }
     }
+        private bool PlayerDetected()
+    {
+        Collider2D[] hitPlayers = Physics2D.OverlapCircleAll(attackPoint.position,
+        attackHitRadius,playerLayer);
+        return hitPlayers.Length > 0;
+    }
+    [SerializeField] private int attack1Damage = 10;
+    [SerializeField] private int attack2Damage = 15;
+    [SerializeField] private int attack3Damage = 25;
+    [SerializeField] private int attack1Knockback = 3;
+    [SerializeField] private int attack2Knockback = 5;
+    [SerializeField] private int attack3Knockback = 8;
+    public void Attack1Hit()
+    {
+        if(PlayerDetected())
+        {
+            GiveDamage(attack1Damage, attack1Knockback);
+        }
+    }
+
+    public void Attack2Hit()
+    {
+        if(PlayerDetected())
+        {
+            GiveDamage(attack2Damage, attack2Knockback);
+        }
+    }
+
+    public void Attack3Hit()
+    {
+        if(PlayerDetected())
+        {
+            GiveDamage(attack3Damage, attack3Knockback);
+        }
+    }
     private bool IsGrounded()
     {
     return Physics2D.OverlapCircle(groundCheck.position,groundCheckRadius,groundLayer);
@@ -146,6 +184,7 @@ public class Enemy : MonoBehaviour
 
     return hit.collider != null;
     }
+
     private void Jump()
     {
     float gravity = Mathf.Abs(
@@ -182,6 +221,13 @@ private void HandleGravity()
     }
     void Update()
     { 
+        attackPoint.localPosition = new Vector3(
+        Mathf.Abs(attackPoint.localPosition.x) * Mathf.Sign(player.position.x - transform.position.x),
+        attackPoint.localPosition.y,
+        attackPoint.localPosition.z);
+        
+
+        
         if(attackCooldownTimer > 0)
         {
             attackCooldownTimer -= Time.deltaTime;
@@ -234,5 +280,12 @@ private void HandleGravity()
         animator.SetFloat("yVelocity", rb.linearVelocity.y);
 
         animator.SetBool("isRunning", Mathf.Abs(rb.linearVelocity.x) > 0.1f);
+    }
+      private void OnDrawGizmosSelected()
+    {
+        if (attackPoint == null)
+            return;
+
+        Gizmos.DrawWireSphere(attackPoint.position, attackHitRadius);
     }
 } 

@@ -9,7 +9,6 @@ public class PlayerHealth : MonoBehaviour
     //this is a getter so that the Enemy script can access the player's collider to check for collisions but cant make changes to it
     public BoxCollider2D PlayerCollider => playerCollider;
     
-    [SerializeField] private float knockbackForce = 5f;
     private PlayerMovement playerMovement;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip BlockHitSound;
@@ -46,7 +45,7 @@ public class PlayerHealth : MonoBehaviour
         // Handle player death (e.g., reload scene, show game over screen, etc.)
         Debug.Log("Player has died.");
     }
-    public void TakeDamage(int damage,float direction)
+    public void TakeDamage(int damage,float direction,float knockbackFromEnemy)
     {
         if(isBlocking == false)
         {   
@@ -56,13 +55,13 @@ public class PlayerHealth : MonoBehaviour
 
             Debug.Log("Player took " + damage + " damage. Current health: " + currentHealth);
             
-            playerMovement.ApplyKnockback(direction, knockbackForce);
+            playerMovement.ApplyKnockback(direction, knockbackFromEnemy); // Apply knockback in the direction of the enemy
             
         }
         else
         {
             //player blocked the attack with shield.
-            playerMovement.ApplyKnockback(direction, knockbackForce / 2f); 
+            playerMovement.ApplyKnockback(direction, knockbackFromEnemy / 2f); 
             // Apply knockback in the same direction with reduced force
             animator.SetBool("isBlocking", false);
             audioSource.PlayOneShot(BlockHitSound);
