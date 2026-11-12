@@ -144,7 +144,7 @@ Transform:
   m_GameObject: {fileID: 57515535}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.002, y: -0.565, z: 0}
+  m_LocalPosition: {x: -0.008, y: -0.591, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -194,6 +194,7 @@ GameObject:
   - component: {fileID: 275493872}
   - component: {fileID: 275493875}
   - component: {fileID: 275493876}
+  - component: {fileID: 275493877}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
@@ -238,7 +239,7 @@ BoxCollider2D:
   m_Offset: {x: 0.10274315, y: 0.26767042}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.49, y: 0.2}
+    pivot: {x: 0.5, y: 0.2}
     oldSize: {x: 2.56, y: 2.56}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
@@ -315,7 +316,7 @@ Transform:
   m_GameObject: {fileID: 275493871}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -35.56, y: -0.13, z: 0}
+  m_LocalPosition: {x: -17.83, y: 5.53, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -335,7 +336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6207a87e635ece4f9c6b4a538bae9ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  animator: {fileID: 0}
+  animator: {fileID: 275493877}
   health: 1000
   knockbackForce: 2
   EnemyCollider: {fileID: 275493872}
@@ -357,6 +358,7 @@ MonoBehaviour:
   jumpHeight: 1.5
   fallMultiplier: 2.5
   maxFallSpeed: 10
+  attackRange: 2
 --- !u!50 &275493876
 Rigidbody2D:
   serializedVersion: 5
@@ -384,6 +386,28 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!95 &275493877
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 275493871}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c98afaddeea3bb547a3ca67f8e081833, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1349,7 +1373,7 @@ GameObject:
   - component: {fileID: 788440388}
   - component: {fileID: 788440389}
   - component: {fileID: 788440390}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Square (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1365,7 +1389,7 @@ Transform:
   m_GameObject: {fileID: 788440387}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.1100006, y: 0.2, z: 0}
+  m_LocalPosition: {x: -1.74, y: -0.27, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3039,7 +3063,7 @@ GameObject:
   - component: {fileID: 1917279456}
   - component: {fileID: 1917279457}
   - component: {fileID: 1917279458}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Square (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3055,7 +3079,7 @@ Transform:
   m_GameObject: {fileID: 1917279455}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.63, y: 1.19, z: 0}
+  m_LocalPosition: {x: 1.15, y: 0.81, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

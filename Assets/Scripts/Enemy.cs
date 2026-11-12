@@ -9,7 +9,8 @@ public class Enemy : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Color orignalColor;
     [SerializeField] public BoxCollider2D EnemyCollider;
-    [SerializeField] private float damageCooldown = 1f;
+    [SerializeField] private float attackCooldown = 1f;
+    private float attackCooldownTimer;
     private float damageCooldownTimer;
     private PlayerHealth playerHealth;
     private float playerKnockbackDirection;
@@ -32,6 +33,10 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float maxFallSpeed = 15f;
 
     private float baseGravityScale;
+
+    [SerializeField] private float attackRange = 2f;
+    private int attackIndex = 1;
+    private bool isAttacking = false;
     
     
     private void Awake()
@@ -69,10 +74,48 @@ public class Enemy : MonoBehaviour
         Debug.Log("Enemy died!");
         Destroy(gameObject);
     }
-    private void GiveDamage()
+    private void GiveDamage(int damage)
     {
         playerKnockbackDirection = Mathf.Sign(playerHealth.transform.position.x - transform.position.x); // Determine the direction of knockback based on the relative position of the player and enemy
-        playerHealth.TakeDamage(10,playerKnockbackDirection);
+        playerHealth.TakeDamage(damage,playerKnockbackDirection);
+    }
+    private void startCombo()
+    {
+        float direction = Mathf.Sign(player.position.x - transform.position.x);
+        spriteRenderer.flipX = direction < 0;
+        isAttacking = true;
+        attackIndex = 1;
+        animator.SetInteger("attackIndex", attackIndex);
+        animator.SetBool("isAttacking", true);
+        animator.SetTrigger("attack");
+    }
+    public void finishCombo()
+    {
+         Debug.Log("FINISH COMBO CALLED!");
+
+        isAttacking = false;
+        attackIndex = 1;
+        animator.SetInteger("attackIndex", attackIndex);
+        animator.SetBool("isAttacking", false);
+        Debug.Log("Combo finished. isAttacking = " + isAttacking);
+        attackCooldownTimer = attackCooldown;
+    
+        
+    }
+    public void continueCombo()
+    {
+        float distanceToPlayer = Mathf.Abs(player.position.x - transform.position.x);
+        if(distanceToPlayer > attackRange || attackIndex >= 3)
+        {
+            finishCombo();
+            return;
+        }
+        else
+        {
+            attackIndex++;
+            animator.SetInteger("attackIndex", attackIndex);
+            
+        }
     }
     private bool IsGrounded()
     {
@@ -110,6 +153,7 @@ public class Enemy : MonoBehaviour
     );
 
     float jumpVelocity = Mathf.Sqrt(2f * gravity * jumpHeight);
+    
 
     rb.linearVelocity = new Vector2(
         rb.linearVelocity.x,
@@ -137,20 +181,30 @@ private void HandleGravity()
     }
     }
     void Update()
-    {
-        if(EnemyCollider.IsTouching(playerHealth.PlayerCollider) && damageCooldownTimer <= 0)
+    { 
+        if(attackCooldownTimer > 0)
         {
-            GiveDamage();
-            damageCooldownTimer = damageCooldown;
+            attackCooldownTimer -= Time.deltaTime;
         }
-        if(damageCooldownTimer > 0)
+        
+        float distanceToPlayer = Mathf.Abs(player.position.x - transform.position.x);
+        if(distanceToPlayer <= attackRange && !isAttacking && attackCooldownTimer <= 0)
         {
-            damageCooldownTimer -= Time.deltaTime;
-        }  
+            startCombo();
+        }
     }
     void FixedUpdate()
     {
         HandleGravity();
+
+        if(isAttacking)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            
+        }
+
+     else{   
+        Debug.Log("chase logic active");
         float distanceToPlayer = Mathf.Abs(player.position.x - transform.position.x);
         if(distanceToPlayer <= detectionRange){
             float direction = Mathf.Sign(player.position.x - transform.position.x);
@@ -174,6 +228,11 @@ private void HandleGravity()
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
         }
-        
+    }
+        animator.SetBool("isGrounded", IsGrounded());
+
+        animator.SetFloat("yVelocity", rb.linearVelocity.y);
+
+        animator.SetBool("isRunning", Mathf.Abs(rb.linearVelocity.x) > 0.1f);
     }
 } 
