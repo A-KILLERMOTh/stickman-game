@@ -143,13 +143,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 57515535}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.008, y: -0.591, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0.0006905909, w: 0.99999976}
+  m_LocalPosition: {x: -0.008000374, y: -0.5910001, z: 0}
+  m_LocalScale: {x: 3, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 275493874}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -0.079}
 --- !u!1 &227010449
 GameObject:
   m_ObjectHideFlags: 0
@@ -316,7 +316,7 @@ Transform:
   m_GameObject: {fileID: 275493871}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -17.83, y: 5.53, z: 0}
+  m_LocalPosition: {x: -14.9, y: 5.58, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -338,12 +338,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   animator: {fileID: 275493877}
   health: 1000
-  knockbackForce: 2
   EnemyCollider: {fileID: 275493872}
-  damageCooldown: 1
+  knockbackFromPlayer: 5
+  attackCooldown: 1
   player: {fileID: 885759464}
-  detectionRange: 3
-  stoppingDistance: 1.5
+  detectionRange: 10
+  stoppingDistance: 0.8
   moveSpeed: 4
   jumpableLayer:
     serializedVersion: 2
@@ -353,12 +353,18 @@ MonoBehaviour:
   groundCheckRadius: 0.15
   groundLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 320
   obstacleCheck: {fileID: 1338634460}
   jumpHeight: 1.5
   fallMultiplier: 2.5
   maxFallSpeed: 10
-  attackRange: 2
+  attackRange: 1.8
+  attack1Damage: 8
+  attack2Damage: 12
+  attack3Damage: 20
+  attack1Knockback: 1
+  attack2Knockback: 1
+  attack3Knockback: 5
 --- !u!50 &275493876
 Rigidbody2D:
   serializedVersion: 5
@@ -1389,7 +1395,7 @@ Transform:
   m_GameObject: {fileID: 788440387}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.74, y: -0.27, z: 0}
+  m_LocalPosition: {x: -1.77, y: 0.19, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1780,7 +1786,7 @@ Transform:
   m_GameObject: {fileID: 885759462}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -37.56, y: 0.474, z: 0}
+  m_LocalPosition: {x: -22.84, y: 6.3, z: 0}
   m_LocalScale: {x: 1.1501, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2032,7 +2038,6 @@ MonoBehaviour:
   maxHealth: 100
   animator: {fileID: 885759471}
   playerCollider: {fileID: 885759465}
-  knockbackForce: 5
   audioSource: {fileID: 1762469665}
   BlockHitSound: {fileID: 8300000, guid: 209d98dee2698bf48976a8ef3e21976e, type: 3}
   shieldAction: {fileID: -2160437448803468058, guid: 052faaac586de48259a63d0c4782560b, type: 3}
@@ -2780,13 +2785,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1738558367}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.720001, y: -1.83, z: 0}
+  m_LocalRotation: {x: -0.008415182, y: -0, z: -0, w: 0.9999646}
+  m_LocalPosition: {x: 8.810001, y: 3.857, z: 0.001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2066616104}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -0.964, y: 0, z: 0}
 --- !u!212 &1738558369
 SpriteRenderer:
   serializedVersion: 2
@@ -3079,7 +3084,7 @@ Transform:
   m_GameObject: {fileID: 1917279455}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.15, y: 0.81, z: 0}
+  m_LocalPosition: {x: 0.79, y: 1.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

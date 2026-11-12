@@ -4,11 +4,11 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] Animator animator;
     [SerializeField] private int health = 100;
-    [SerializeField] private float knockbackForce = 2f;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private Color orignalColor;
     [SerializeField] public BoxCollider2D EnemyCollider;
+    [SerializeField] private float knockbackFromPlayer = 5f;
     [SerializeField] private float attackCooldown = 1f;
     private float attackCooldownTimer;
     private float damageCooldownTimer;
@@ -60,7 +60,7 @@ public class Enemy : MonoBehaviour
         spriteRenderer.color = Color.red;
         Invoke(nameof(ResetColor), 0.1f);
 
-        rb.linearVelocity = new Vector2(knockbackForce * direction, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(knockbackFromPlayer * direction, rb.linearVelocity.y);
         
 
         if (health <= 0)
@@ -74,10 +74,10 @@ public class Enemy : MonoBehaviour
         Debug.Log("Enemy died!");
         Destroy(gameObject);
     }
-    private void GiveDamage(int damage)
+    public void GiveDamage(int damage,int knockbackFromEnemy)
     {
         playerKnockbackDirection = Mathf.Sign(playerHealth.transform.position.x - transform.position.x); // Determine the direction of knockback based on the relative position of the player and enemy
-        playerHealth.TakeDamage(damage,playerKnockbackDirection);
+        playerHealth.TakeDamage(damage,playerKnockbackDirection,knockbackFromEnemy);
     }
     private void startCombo()
     {
@@ -116,6 +116,26 @@ public class Enemy : MonoBehaviour
             animator.SetInteger("attackIndex", attackIndex);
             
         }
+    }
+    [SerializeField] private int attack1Damage = 10;
+    [SerializeField] private int attack2Damage = 15;
+    [SerializeField] private int attack3Damage = 25;
+    [SerializeField] private int attack1Knockback = 3;
+    [SerializeField] private int attack2Knockback = 5;
+    [SerializeField] private int attack3Knockback = 8;
+    public void Attack1Hit()
+    {
+    GiveDamage(attack1Damage, attack1Knockback);
+    }
+
+public void Attack2Hit()
+    {
+    GiveDamage(attack2Damage, attack2Knockback);
+    }
+
+public void Attack3Hit()
+    {
+    GiveDamage(attack3Damage, attack3Knockback);
     }
     private bool IsGrounded()
     {
