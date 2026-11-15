@@ -9,7 +9,7 @@ public class PlayerAttack : MonoBehaviour
 
     private PlayerMovement playerMovement;
     private bool isAttacking;
-    private int comboStep = 0;
+    public int comboStep = 0;
     private bool attackQueued = false;
     private bool canQueueNextAttack = false;
 

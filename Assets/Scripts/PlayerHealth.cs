@@ -14,7 +14,7 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private AudioClip BlockHitSound;
     
     private int currentHealth;
-    private bool isBlocking = false;
+    public bool isBlocking = false;
     [SerializeField] private InputActionReference shieldAction;
 
     void OnEnable()
@@ -47,13 +47,15 @@ public class PlayerHealth : MonoBehaviour
     }
     public void TakeDamage(int damage,float direction,float knockbackFromEnemy)
     {
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
         if(isBlocking == false)
         {   
             currentHealth -= damage;
 
             animator.SetTrigger("Hurt");
-
-            Debug.Log("Player took " + damage + " damage. Current health: " + currentHealth);
             
             playerMovement.ApplyKnockback(direction, knockbackFromEnemy); // Apply knockback in the direction of the enemy
             
@@ -63,15 +65,12 @@ public class PlayerHealth : MonoBehaviour
             //player blocked the attack with shield.
             playerMovement.ApplyKnockback(direction, knockbackFromEnemy / 2f); 
             // Apply knockback in the same direction with reduced force
-            animator.SetBool("isBlocking", false);
+            Debug.Log("BLOCKED");
             audioSource.PlayOneShot(BlockHitSound);
 
         }
         
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
+
 
     }
 
@@ -81,14 +80,12 @@ public class PlayerHealth : MonoBehaviour
         if(shieldAction.action.triggered)
         {
             isBlocking = true;
-            Debug.Log("Player is blocking.");
             animator.SetBool("isBlocking", true);
             
         }
         if(shieldAction.action.WasReleasedThisFrame())
         {
             isBlocking = false;
-            Debug.Log("Player stopped blocking.");
             animator.SetBool("isBlocking", false);
             
         }

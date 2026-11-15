@@ -34,13 +34,31 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float maxFallSpeed = 15f;
 
     private float baseGravityScale;
-
+    [Header("Attack Settings")]
     [SerializeField] private float attackRange = 2f;
     private int attackIndex = 1;
     private bool isAttacking = false;
     [SerializeField] private Transform attackPoint;
     [SerializeField] private float attackHitRadius = 1f;
-    
+     [SerializeField] private int attack1Damage = 10;
+    [SerializeField] private int attack2Damage = 15;
+    [SerializeField] private int attack3Damage = 25;
+    [SerializeField] private int attack1Knockback = 3;
+    [SerializeField] private int attack2Knockback = 5;
+    [SerializeField] private int attack3Knockback = 8;
+
+    [Header("hitStop Settings")]
+    [SerializeField] private float hitStopDuration1 = 0.1f;
+     // Duration of the hit stop effect in seconds
+    [SerializeField] private float hitStopDuration2 = 0.15f; // Duration of the hit stop effect in seconds
+    [SerializeField] private float hitStopDuration3 = 0.2f;
+     
+     [Header("Hitstop from Player Attacks")]
+    [SerializeField] private float hitStopDurationFromPlayerAttack1 = 0.1f; // Duration of the hit stop effect in seconds
+    [SerializeField] private float hitStopDurationFromPlayerAttack2 = 0.15f; // Duration of the hit stop effect in seconds
+    [SerializeField] private float hitStopDurationFromPlayerAttack3 = 0.2f;
+
+    private PlayerAttack playerAttack;
     
     private void Awake()
     {
@@ -51,6 +69,7 @@ public class Enemy : MonoBehaviour
         EnemyCollider = GetComponent<BoxCollider2D>();
         playerHealth = FindAnyObjectByType<PlayerHealth>();
         baseGravityScale = rb.gravityScale;
+        playerAttack = player.GetComponent<PlayerAttack>();
     }
     private void ResetColor()
     {
@@ -62,7 +81,25 @@ public class Enemy : MonoBehaviour
         health -= damage;
         spriteRenderer.color = Color.red;
         Invoke(nameof(ResetColor), 0.1f);
-
+        if(isAttacking)
+        {
+            finishCombo();
+        }
+        animator.SetTrigger("hit");
+        if(playerAttack.comboStep == 1)
+        {
+            hitStop.instance.StopTime(hitStopDurationFromPlayerAttack1);
+        }
+        else if(playerAttack.comboStep == 2)
+        {
+            hitStop.instance.StopTime(hitStopDurationFromPlayerAttack2);
+        }
+        else if(playerAttack.comboStep == 3)
+        {
+            hitStop.instance.StopTime(hitStopDurationFromPlayerAttack3);
+        }
+        
+        
         rb.linearVelocity = new Vector2(knockbackFromPlayer * direction, rb.linearVelocity.y);
         
 
@@ -74,12 +111,14 @@ public class Enemy : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("Enemy died!");
         Destroy(gameObject);
     }
     public void GiveDamage(int damage,int knockbackFromEnemy)
     {
-        playerKnockbackDirection = Mathf.Sign(playerHealth.transform.position.x - transform.position.x); // Determine the direction of knockback based on the relative position of the player and enemy
+        
+        playerKnockbackDirection = Mathf.Sign(playerHealth.transform.position.x - transform.position.x);
+        
+         // Determine the direction of knockback based on the relative position of the player and enemy
         playerHealth.TakeDamage(damage,playerKnockbackDirection,knockbackFromEnemy);
     }
     private void startCombo()
@@ -94,13 +133,11 @@ public class Enemy : MonoBehaviour
     }
     public void finishCombo()
     {
-         Debug.Log("FINISH COMBO CALLED!");
 
         isAttacking = false;
         attackIndex = 1;
         animator.SetInteger("attackIndex", attackIndex);
         animator.SetBool("isAttacking", false);
-        Debug.Log("Combo finished. isAttacking = " + isAttacking);
         attackCooldownTimer = attackCooldown;
     
         
@@ -126,17 +163,16 @@ public class Enemy : MonoBehaviour
         attackHitRadius,playerLayer);
         return hitPlayers.Length > 0;
     }
-    [SerializeField] private int attack1Damage = 10;
-    [SerializeField] private int attack2Damage = 15;
-    [SerializeField] private int attack3Damage = 25;
-    [SerializeField] private int attack1Knockback = 3;
-    [SerializeField] private int attack2Knockback = 5;
-    [SerializeField] private int attack3Knockback = 8;
+
     public void Attack1Hit()
     {
-        if(PlayerDetected())
+        if(PlayerDetected() )
         {
+            if(playerHealth.isBlocking == false){
+            hitStop.instance.StopTime(hitStopDuration1);
+            }
             GiveDamage(attack1Damage, attack1Knockback);
+
         }
     }
 
@@ -144,6 +180,9 @@ public class Enemy : MonoBehaviour
     {
         if(PlayerDetected())
         {
+            if(playerHealth.isBlocking == false){
+            hitStop.instance.StopTime(hitStopDuration2);
+            }
             GiveDamage(attack2Damage, attack2Knockback);
         }
     }
@@ -152,7 +191,11 @@ public class Enemy : MonoBehaviour
     {
         if(PlayerDetected())
         {
+            if(playerHealth.isBlocking == false){
+            hitStop.instance.StopTime(hitStopDuration3);
+            }
             GiveDamage(attack3Damage, attack3Knockback);
+            
         }
     }
     private bool IsGrounded()
@@ -250,7 +293,6 @@ private void HandleGravity()
         }
 
      else{   
-        Debug.Log("chase logic active");
         float distanceToPlayer = Mathf.Abs(player.position.x - transform.position.x);
         if(distanceToPlayer <= detectionRange){
             float direction = Mathf.Sign(player.position.x - transform.position.x);
