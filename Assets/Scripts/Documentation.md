@@ -1,408 +1,185 @@
+# Stickman Game – Development Notes
 
-# STICKMAN GAME
-## Development Notebook
+## 1. Project Overview
 
-**Engine:** Unity 2D  
-**Language:** C#  
-**Project:** Stickman Game  
-**Repository:** https://github.com/A-KILLERMOTh/stickman-game
+A fast-paced 2D combat game built in Unity, focused on responsive movement, aggressive combat, combo attacks, blocking, knockback and impactful combat feedback.
 
 ---
 
-# 1. PROJECT OVERVIEW
+## 2. Player Systems
 
-A 2D action platformer featuring a stickman character with movement, aerial abilities, melee combat, shielding and enemy AI.
+### Player Movement
+- Horizontal movement implemented.
+- Facing direction tracked and used by combat systems.
+- Jumping implemented.
+- Air dash implemented.
+- Movement restrictions during attack combos implemented.
+- Knockback system implemented.
 
-The project is being developed incrementally using Unity and C#.
+### Player Combat
+- Three-step attack combo system implemented.
+- Animator controlled using `AttackIndex`.
+- Attack inputs can be queued during designated combo windows.
+- Combo progression controlled through Animation Events.
+- Attack hit detection implemented using `Physics2D.OverlapCircleAll()`.
+- Attack point adjusts based on player facing direction.
+- Attack cooldown implemented.
 
-The main systems we have worked on are:
+### Player Health
+- Player health system implemented.
+- Damage reception implemented.
+- Hurt animation triggered when receiving unblocked damage.
+- Knockback applied when receiving damage.
+- Death function currently logs a message and requires further implementation.
 
-- Player movement and physics.
-- Jumping and air dashing.
-- Attack combos.
-- Animation state management.
-- Player health.
-- Shield and blocking mechanics.
-- Enemy movement and chasing.
-- Enemy obstacle jumping.
-
----
-
-# 2. PLAYER MOVEMENT
-
-**Script:** `PlayerMovement.cs`
-
-### Horizontal Movement
-
-Implemented Rigidbody2D-based horizontal movement.
-
-We use velocity to control the player's movement while preserving the vertical component.
-
-```csharp
-rb.linearVelocity = new Vector2(
-    horizontalInput * moveSpeed,
-    rb.linearVelocity.y
-);
-```
-
-### Jumping
-
-Implemented jumping by controlling the Rigidbody2D's vertical velocity.
-
-```csharp
-rb.linearVelocity = new Vector2(
-    rb.linearVelocity.x,
-    jumpForce
-);
-```
-
-Important concepts covered:
-
-- Initial jump velocity.
-- Gravity and vertical acceleration.
-- Ground detection.
-- Controlling movement while airborne.
-
-### Maximum Fall Speed
-
-Implemented/discussed limiting the player's downward velocity.
-
-```csharp
-if (rb.linearVelocity.y < -maxFallSpeed)
-{
-    rb.linearVelocity = new Vector2(
-        rb.linearVelocity.x,
-        -maxFallSpeed
-    );
-}
-```
-
-Important understanding:
-
-- Increasing maximum fall speed allows faster falling.
-- It does not increase the initial jump velocity.
-- It limits how fast the character can fall.
-
-### Air Dash
-
-Implemented an air dash.
-
-Additional restrictions were added:
-
-- The player cannot jump or ascend again after air dashing.
-- Normal movement must not interfere with dash movement.
-- Movement logic needs to respect the current action state.
-
-### Movement During Attack Combos
-
-Implemented restrictions to minimize player movement while performing attack combos.
-
-This prevents normal movement input from interfering with the attack sequence.
+### Blocking / Shield System
+- Shield input implemented using Unity Input System.
+- Blocking state controlled through `isBlocking`.
+- Shield animation controlled through Animator parameters.
+- Blocking reduces incoming knockback.
+- Blocked attacks do not reduce player health.
+- Block-hit audio implemented using `AudioSource.PlayOneShot()`.
+- Blocking persists across multiple incoming attacks until the player releases the shield.
+- Blocking logic is handled inside `PlayerHealth.TakeDamage()`.
 
 ---
 
-# 3. PLAYER ATTACK SYSTEM
+## 3. Enemy Systems
 
-**Script:** `PlayerAttack.cs`
+### Enemy Movement and AI
+- Player detection implemented.
+- Enemy follows the player.
+- Enemy stopping distance implemented.
+- Enemy facing direction implemented.
+- Obstacle detection implemented.
+- Jumping over obstacles implemented.
+- Ground detection implemented.
 
-### Attack Combo
+### Enemy Combat
+- Three-step enemy attack combo implemented.
+- Combo progression controlled through Animation Events.
+- Attack hit detection implemented.
+- Directional attack detection implemented.
+- Attack damage and knockback implemented.
+- Attack cooldown implemented.
+- Enemy attack interruption upon receiving damage implemented.
 
-Implemented a multi-stage attack combo using Unity's Animator.
-
-The attack system uses animation states to represent the different stages of the combo.
-
-### Animator Integration
-
-Worked with Animator parameters to control attack states and transitions.
-
-Important distinction:
-
-`Animator` and `Animation` are different Unity components.
-
-Animator parameters are accessed through the Animator component.
-
-```csharp
-animator.SetInteger("Attack", 1);
-animator.SetBool("IsAttacking", true);
-animator.SetTrigger("Attack");
-```
-
-These are examples of the API, not a claim that all three parameters exist in the current project.
-
-### Problems Encountered
-
-- Attack 2 failing to transition back to Idle.
-- Attack sequence becoming stuck.
-- Player no longer accepting additional attack input.
-- Player not starting in the Idle animation.
-- Incorrect use of `Animation.SetInteger()` instead of the Animator API.
-
-We worked on debugging the Animator transitions and parameter handling.
+### Enemy Health and Damage
+- Enemy damage reception implemented.
+- Hurt animation implemented.
+- Knockback implemented.
+- Enemy combo interruption on receiving damage implemented.
 
 ---
 
-# 4. PLAYER HEALTH SYSTEM
+## 4. Animation Systems
 
-**Script:** `PlayerHealth.cs`
+### Player Animations
+- Idle
+- Movement
+- Jump
+- Fall
+- Dash
+- Attack 1
+- Attack 2
+- Attack 3
+- Hurt
+- Shield / Blocking
 
-Started implementing the player's health and damage-handling system.
+### Enemy Animations
+- Locomotion
+- Attack 1
+- Attack 2
+- Attack 3
+- Hurt
 
-The script includes serialized references for components such as:
+### Animation Events
+Animation Events are used to synchronize gameplay actions with animation frames.
 
-- Maximum health.
-- Animator.
-- Collider-related components.
-
-### Health System Concepts
-
-The health system is responsible for tracking the player's health and handling damage interactions.
-
-Basic health logic:
-
-```csharp
-currentHealth -= damage;
-currentHealth = Mathf.Max(0, currentHealth);
-```
-
-We also worked on connecting the health system with shield/block interactions.
-
-### Compiler Error Encountered
-
-```text
-CS0246: The type or namespace name
-'BlockHitSound' could not be found.
-```
-
-This indicated that Unity could not resolve the referenced class.
-
-The issue was still being investigated in our latest discussion.
+Examples:
+- Attack hit detection.
+- Combo progression.
+- Combo completion.
 
 ---
 
-# 5. SHIELD / BLOCK SYSTEM
+## 5. Combat Feedback
 
-Worked on implementing the player's shield mechanics.
+### Knockback
+- Player knockback implemented.
+- Enemy knockback implemented.
+- Knockback values vary depending on the attack.
+- Blocking reduces knockback received.
 
-### Animation Work
+### Hit-Stop
+- A centralized hit-stop manager implemented using a singleton-style pattern.
+- Hit-stop handled through a coroutine.
+- `Time.timeScale` used to freeze gameplay temporarily.
+- `WaitForSecondsRealtime` used to allow the freeze duration to complete while time is paused.
+- Hit-stop duration can be configured.
+- Hit-stop integrated into combat damage interactions.
 
-- Created/worked on the shield-hit animation.
-- Worked on the individual shield hit frames.
-- Investigated an electricity symbol appearing in front of the character and obscuring the animation.
-
-### Blocking Interaction
-
-Worked on connecting the shield mechanic with player damage handling.
-
-The intended interaction within the implemented system is to distinguish between a blocked hit and an ordinary damaging hit.
-
-The shield's animation and damage-handling integration were both part of our development work.
-
----
-
-# 6. ENEMY AI SYSTEM
-
-**Script:** `Enemy.cs`
-
-One of the major systems developed so far.
-
-The enemy implementation includes health-related fields, movement, player chasing and obstacle jumping.
-
-### Enemy Chasing
-
-Implemented enemy movement towards the player's position.
-
-The basic direction calculation is:
-
-```csharp
-Vector2 direction =
-    (player.position - transform.position).normalized;
-```
-
-For horizontal movement, we use the horizontal component of the direction.
-
-The enemy uses the player's position to determine where it needs to move.
-
-### Obstacle Jumping
-
-Implemented enemy jumping over obstacles while chasing the player.
-
-The general behavior:
-
-1. Enemy follows the player.
-2. Obstacle detection identifies an obstacle.
-3. Enemy checks whether it can jump.
-4. Enemy initiates a jump.
-5. Enemy continues chasing.
-
-### Jump and Falling Behavior
-
-Worked on calibrating the enemy's jump and falling behavior.
-
-Concepts discussed:
-
-- Jump velocity.
-- Gravity.
-- Maximum falling speed.
-- Ground detection.
-- Obstacle detection.
-- Movement while airborne.
-
-### Wall-Sticking Bug
-
-Encountered an issue where the enemy sticks against a wall while falling.
-
-This issue was still unresolved in our latest discussion.
-
-We identified that collision behavior and movement logic need to be investigated.
+### Audio
+- Block-hit sound implemented.
+- Audio played through `AudioSource.PlayOneShot()`.
+- Additional combat sounds still needed.
 
 ---
 
-# 7. UNITY ANIMATION SYSTEM
+## 6. Technical Concepts Used
 
-Worked extensively with Unity's Animator system.
-
-### Concepts Covered
-
-**Animator Parameters**
-
-Used to communicate gameplay states to animations.
-
-**Animator Transitions**
-
-Control how the character moves between animation states.
-
-**Has Exit Time**
-
-Determines whether a transition waits for the animation to reach a specified exit time.
-
-**Default State**
-
-Determines which animation plays when the Animator starts.
-
-### Animation Debugging
-
-We investigated:
-
-- Incorrect default animation.
-- Attack states not transitioning correctly.
-- Animations getting stuck.
-- Incorrect Animator component references.
-- Animation visibility and sprite layering issues.
+- Unity Animator Controllers
+- Animator Parameters
+- Animation Events
+- Rigidbody2D
+- Collider2D
+- Physics2D overlap detection
+- LayerMasks
+- Unity Input System
+- Coroutines
+- Time.timeScale
+- WaitForSecondsRealtime
+- Singleton-style access
+- Encapsulation using properties
+- Git version control and merge resolution
 
 ---
 
-# 8. PHYSICS AND C# CONCEPTS COVERED
+## 7. Current Development Status
 
-These are concepts we discussed while implementing the systems.
+### Completed
+- Player movement
+- Jumping
+- Air dash
+- Player attack combo
+- Enemy AI
+- Enemy attack combo
+- Enemy damage and interruption
+- Player damage
+- Knockback
+- Shield / blocking
+- Block-hit audio
+- Hit-stop implementation and integration
 
-| Concept | What we learned |
-|---|---|
-| Rigidbody2D | Physics-based movement |
-| linearVelocity | Controls velocity |
-| Vector2 | Represents 2D vectors |
-| Normalized vector | Direction with unit magnitude |
-| Gravity | Changes vertical velocity over time |
-| Maximum fall speed | Limits downward velocity |
-| Update() | Frame-based logic |
-| FixedUpdate() | Fixed-timestep physics logic |
-| Animator | Controls animation states |
-| SetInteger() | Sets an Animator integer parameter |
-| SetBool() | Sets an Animator boolean parameter |
-| SetTrigger() | Activates an Animator trigger |
-| SerializeField | Exposes private fields in Inspector |
-| Collider2D | Handles 2D collision detection |
+### Current Task
+**Block Duration / Guard Management**
 
-### Important Movement Distinction
-
-We discussed the difference between:
-
-**Setting Velocity Directly**
-
-Changes velocity immediately.
-
-**Applying Force**
-
-Changes velocity over time according to the physics simulation.
-
-We also discussed why continuously setting velocity while holding movement input does not work the same way as continuously applying acceleration.
+Planned:
+- Limited continuous guard duration.
+- Guard depletion.
+- Guard break.
+- Recovery period.
+- Recharging guard after recovery.
+- Voluntary shield release without guard break.
 
 ---
 
-# 9. DEVELOPMENT AND VERSION CONTROL
+## 8. Upcoming Combat Improvements
 
-We use Git and GitHub to maintain the project's development history.
-
-Repository:
-
-https://github.com/A-KILLERMOTh/stickman-game
-
-Our workflow includes:
-
-1. Implementing a feature.
-2. Testing it in Unity.
-3. Debugging issues.
-4. Refining the implementation.
-5. Committing completed changes.
-
-We have also discussed writing meaningful commit descriptions that explain what a feature actually changes.
-
----
-
-# 10. DEVELOPMENT STATUS
-
-| System | Recorded Status |
-|---|---|
-| Player horizontal movement | Implemented |
-| Player jumping | Implemented |
-| Air movement | Implemented |
-| Air dash | Implemented |
-| Jump restriction after air dash | Implemented |
-| Attack combo | Implemented |
-| Movement restriction during attack | Implemented |
-| Player health | Worked on |
-| Shield hit animation | Worked on |
-| Shield and damage integration | Worked on |
-| Enemy chasing | Implemented |
-| Enemy obstacle jumping | Implemented |
-| Enemy jump calibration | Worked on |
-| Enemy wall-sticking issue | Unresolved |
-
----
-
-# 11. DEVELOPMENT PRINCIPLES
-
-These are the important lessons that have come up repeatedly during development.
-
-**1. Understand the Physics.**
-
-Know the difference between position, velocity, acceleration and force before changing movement behavior.
-
-**2. Avoid Conflicting Movement Logic.**
-
-Normal movement, air dash and attack movement must not continuously overwrite each other.
-
-**3. Understand the Animator.**
-
-Animation transitions and parameters are part of gameplay logic, not just visual presentation.
-
-**4. Debug Systematically.**
-
-Identify the reason behind a bug instead of randomly changing values until something works.
-
-**5. Understand the Code Being Written.**
-
-The objective is to become capable of implementing and debugging the systems independently.
-
-**6. Build Incrementally.**
-
-Complete a system, test it, understand it and then move forward.
-
----
-
-# PROJECT DEVELOPMENT RECORD
-
-This document records the systems and concepts covered during development.
-
-It intentionally excludes features that have only been proposed or discussed but not actually worked on.
-
-**Development philosophy: Build it brick by brick. Understand every brick.**
+- Guard duration and guard break.
+- Combat sound effects.
+- Hit-impact visual effects.
+- Combat responsiveness tuning.
+- Knockback tuning.
+- Enemy aggression and combat balance.
+- Additional death and game-over behavior.
