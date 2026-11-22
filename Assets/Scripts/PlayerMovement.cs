@@ -45,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
     private float dashTimer;
     private bool hasAirDashed;
     [SerializeField] private PlayerAttack playerAttack;
+    [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] private float attackMoveSpeed = 1f;
     [SerializeField] private float knockbackDuration = 0.2f;
     private float knockbackTimer;
@@ -231,6 +232,11 @@ public class PlayerMovement : MonoBehaviour
         }
         return; // Skip normal movement while knockedback
     }
+    if(playerHealth.isBlocking == true)
+        {
+            rb.linearVelocity = new Vector2(0,rb.linearVelocity.y);
+            return; // Skip normal movement while blocking
+        }
 
     // Normal movement
     float currentMoveSpeed = playerAttack.IsAttacking ? attackMoveSpeed : moveSpeed;

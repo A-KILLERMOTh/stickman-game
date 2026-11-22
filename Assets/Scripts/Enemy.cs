@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -8,10 +9,8 @@ public class Enemy : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Color orignalColor;
     [SerializeField] public BoxCollider2D EnemyCollider;
-    [SerializeField] private float knockbackFromPlayer = 5f;
     [SerializeField] private float attackCooldown = 1f;
     private float attackCooldownTimer;
-    private float damageCooldownTimer;
     private PlayerHealth playerHealth;
     private float playerKnockbackDirection;
     [SerializeField]private  Transform player;
@@ -57,7 +56,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float hitStopDurationFromPlayerAttack1 = 0.1f; // Duration of the hit stop effect in seconds
     [SerializeField] private float hitStopDurationFromPlayerAttack2 = 0.15f; // Duration of the hit stop effect in seconds
     [SerializeField] private float hitStopDurationFromPlayerAttack3 = 0.2f;
-
+    [Header("Death Settings")]
+    [SerializeField] private float deathDelay = 5f; // Delay before destroying the enemy after death
     private PlayerAttack playerAttack;
     
     private void Awake()
@@ -76,9 +76,22 @@ public class Enemy : MonoBehaviour
         spriteRenderer.color = orignalColor;
     }
 
-    public void TakeDamage(int damage,float direction)
-    {    // Reverse the direction for knockback
+    public void TakeDamage(int damage,float direction,float knockback)
+    {   
+        if(playerHealth.IsDead)
+        {
+            return;
+        }
+      
         health -= damage;
+        if (health <= 0)
+        {
+            animator.SetTrigger("die");
+            Die();
+            return;
+        }
+         // Reverse the direction for knockback
+        
         spriteRenderer.color = Color.red;
         Invoke(nameof(ResetColor), 0.1f);
         if(isAttacking)
@@ -100,18 +113,20 @@ public class Enemy : MonoBehaviour
         }
         
         
-        rb.linearVelocity = new Vector2(knockbackFromPlayer * direction, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(knockback * direction, rb.linearVelocity.y);
         
 
-        if (health <= 0)
-        {
-            Die();
-        }
+    
+    }
+    private IEnumerator destroyAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Destroy(gameObject);
     }
 
     private void Die()
     {
-        Destroy(gameObject);
+       StartCoroutine(destroyAfterDelay(deathDelay));
     }
     public void GiveDamage(int damage,int knockbackFromEnemy)
     {
@@ -264,6 +279,11 @@ private void HandleGravity()
     }
     void Update()
     { 
+        if(playerHealth.IsDead)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            return;
+        }
         attackPoint.localPosition = new Vector3(
         Mathf.Abs(attackPoint.localPosition.x) * Mathf.Sign(player.position.x - transform.position.x),
         attackPoint.localPosition.y,

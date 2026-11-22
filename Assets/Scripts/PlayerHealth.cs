@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-
+using System.Collections;
 public class PlayerHealth : MonoBehaviour
 {
     [SerializeField] private int maxHealth = 100;
@@ -14,9 +14,15 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private AudioClip BlockHitSound;
     
     private int currentHealth;
+    [Header("Shield settings")]
     public bool isBlocking = false;
     [SerializeField] private InputActionReference shieldAction;
-
+    [SerializeField] private float blockDuration = 1f;
+    [SerializeField] private float blockCooldown = 0.5f;
+    private float blockCooldownTimer = 0f;
+    private float blockTimer = 0f;
+    [Header("Death settings")]
+    [SerializeField] private DeathUI deathUI;
     void OnEnable()
     {
         shieldAction.action.Enable();
@@ -34,29 +40,34 @@ public class PlayerHealth : MonoBehaviour
         
         playerMovement = GetComponent<PlayerMovement>();
         audioSource = GetComponentInChildren<AudioSource>();
+        deathUI = FindAnyObjectByType<DeathUI>();
 
     }
     void Start()
     {
         
     }
+    private bool isDead = false;
+    public bool IsDead => isDead; // Public getter for isDead
     void Die()
     {
-        // Handle player death (e.g., reload scene, show game over screen, etc.)
-        Debug.Log("Player has died.");
+        deathUI.ShowDeath();
+        animator.SetTrigger("die");
+        isDead = true;
     }
     public void TakeDamage(int damage,float direction,float knockbackFromEnemy)
     {
-        if (currentHealth <= 0)
+        if (isDead) return; // Prevent further damage if the player is already dead
+        if(isBlocking == false || (isBlocking == true && direction == playerMovement.FacingDirection))
+        {
+            
+            currentHealth -= damage;
+            if (currentHealth <= 0)
         {
             Die();
-        }
-        if(isBlocking == false)
-        {   
-            currentHealth -= damage;
-
+            return;
+        } 
             animator.SetTrigger("Hurt");
-            
             playerMovement.ApplyKnockback(direction, knockbackFromEnemy); // Apply knockback in the direction of the enemy
             
         }
@@ -67,28 +78,37 @@ public class PlayerHealth : MonoBehaviour
             // Apply knockback in the same direction with reduced force
             Debug.Log("BLOCKED");
             audioSource.PlayOneShot(BlockHitSound);
-
         }
-        
-
-
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(shieldAction.action.triggered)
+
+        if(blockCooldownTimer > 0f)
+        {
+            blockCooldownTimer -= Time.deltaTime;
+        }
+        if(blockTimer > 0f && isBlocking)
+        {
+            blockTimer -= Time.deltaTime;
+        }
+        if(shieldAction.action.triggered && blockCooldownTimer <= 0f)
         {
             isBlocking = true;
             animator.SetBool("isBlocking", true);
-            
+            blockTimer = blockDuration;
         }
-        if(shieldAction.action.WasReleasedThisFrame())
+
+        if(shieldAction.action.WasReleasedThisFrame() || (isBlocking && blockTimer <= 0f))
         {
             isBlocking = false;
+            blockCooldownTimer = blockCooldown;
+            blockTimer = 0f; // Reset block timer when shield is released
             animator.SetBool("isBlocking", false);
             
         }
 
     }
+    
 }

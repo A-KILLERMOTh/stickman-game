@@ -15,23 +15,45 @@ public class PlayerAttack : MonoBehaviour
 
     [SerializeField] private Transform attackPoint;
     [SerializeField] private float attackRange = 0.5f;
-    [SerializeField] private int attackDamage = 20;
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private float attackCooldown = 0.3f;
     private float attackCooldownTimer;
+    [SerializeField] private int attackDamage1 = 5;
+    [SerializeField] private int attackDamage2 = 10;
+    [SerializeField] private int attackDamage3 = 15;
+    [SerializeField]private float knockback1 = 5f;
+    [SerializeField]private float knockback2 = 7f;
+    [SerializeField]private float knockback3 = 10f;
     public void DealDamage()
 {
+    int attackDamage = 0;
+    float knockback=0;
     Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(
         attackPoint.position,
         attackRange,
         enemyLayer
     );
+        switch (comboStep)
+        {
+            case 1:
+            attackDamage = attackDamage1;
+            knockback = knockback1;
+            break;
+            case 2:
+            attackDamage = attackDamage2;
+            knockback = knockback2;
+            break;
+            case 3:
+            attackDamage = attackDamage3;
+            knockback = knockback3;
+            break;
+        }
 
     foreach (Collider2D enemy in hitEnemies)
     {
         enemy.GetComponent<Enemy>().TakeDamage(
             attackDamage,
-            playerMovement.FacingDirection
+            playerMovement.FacingDirection,knockback
         );
     }
 
