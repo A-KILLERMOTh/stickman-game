@@ -24,13 +24,19 @@ A fast-paced 2D combat game built in Unity, focused on responsive movement, aggr
 - Attack hit detection implemented using `Physics2D.OverlapCircleAll()`.
 - Attack point adjusts based on player facing direction.
 - Attack cooldown implemented.
+- Individually configurable damage for each combo hit.
+- Individually configurable knockback strength for each combo hit.
+- Damage and knockback values selected based on the current combo step.
 
 ### Player Health
 - Player health system implemented.
 - Damage reception implemented.
 - Hurt animation triggered when receiving unblocked damage.
 - Knockback applied when receiving damage.
-- Death function currently logs a message and requires further implementation.
+- Player death system implemented.
+- Death state prevents further damage after death.
+- Death animation triggered when health reaches zero.
+- Death UI activated upon player death.
 
 ### Blocking / Shield System
 - Shield input implemented using Unity Input System.
@@ -41,6 +47,10 @@ A fast-paced 2D combat game built in Unity, focused on responsive movement, aggr
 - Block-hit audio implemented using `AudioSource.PlayOneShot()`.
 - Blocking persists across multiple incoming attacks until the player releases the shield.
 - Blocking logic is handled inside `PlayerHealth.TakeDamage()`.
+- Configurable block duration implemented.
+- Configurable block cooldown implemented.
+- Block duration drains while blocking.
+- Cooldown begins after voluntary shield release or guard depletion.
 
 ---
 
@@ -54,6 +64,7 @@ A fast-paced 2D combat game built in Unity, focused on responsive movement, aggr
 - Obstacle detection implemented.
 - Jumping over obstacles implemented.
 - Ground detection implemented.
+- Enemy movement and attack behaviour stop when the player dies.
 
 ### Enemy Combat
 - Three-step enemy attack combo implemented.
@@ -63,12 +74,15 @@ A fast-paced 2D combat game built in Unity, focused on responsive movement, aggr
 - Attack damage and knockback implemented.
 - Attack cooldown implemented.
 - Enemy attack interruption upon receiving damage implemented.
+- Enemy attacks stop when the player is dead.
 
 ### Enemy Health and Damage
 - Enemy damage reception implemented.
 - Hurt animation implemented.
 - Knockback implemented.
 - Enemy combo interruption on receiving damage implemented.
+- Enemy receives damage, attack direction and knockback values from player attacks.
+- Enemy health reduced according to received damage.
 
 ---
 
@@ -85,6 +99,7 @@ A fast-paced 2D combat game built in Unity, focused on responsive movement, aggr
 - Attack 3
 - Hurt
 - Shield / Blocking
+- Death
 
 ### Enemy Animations
 - Locomotion
@@ -100,6 +115,7 @@ Examples:
 - Attack hit detection.
 - Combo progression.
 - Combo completion.
+- Synchronizing damage with attack impact frames.
 
 ---
 
@@ -110,6 +126,7 @@ Examples:
 - Enemy knockback implemented.
 - Knockback values vary depending on the attack.
 - Blocking reduces knockback received.
+- Player attacks have individually configurable knockback values per combo hit.
 
 ### Hit-Stop
 - A centralized hit-stop manager implemented using a singleton-style pattern.
@@ -121,12 +138,26 @@ Examples:
 
 ### Audio
 - Block-hit sound implemented.
+- Death sound implemented.
 - Audio played through `AudioSource.PlayOneShot()`.
 - Additional combat sounds still needed.
 
 ---
 
-## 6. Technical Concepts Used
+## 6. UI Systems
+
+### Death UI
+- Death UI implemented.
+- Death text activated when the player dies.
+- Death sound triggered on death.
+- Restart button implemented.
+- Restart button activated upon death.
+- Restart button connected to the death UI script through the Button `OnClick()` event.
+- Current scene reloads using `SceneManager.LoadScene()`.
+
+---
+
+## 7. Technical Concepts Used
 
 - Unity Animator Controllers
 - Animator Parameters
@@ -141,11 +172,13 @@ Examples:
 - WaitForSecondsRealtime
 - Singleton-style access
 - Encapsulation using properties
+- Scene management using `SceneManager`
+- Inspector-based configuration using serialized fields
 - Git version control and merge resolution
 
 ---
 
-## 7. Current Development Status
+## 8. Current Development Status
 
 ### Completed
 - Player movement
@@ -156,30 +189,30 @@ Examples:
 - Enemy attack combo
 - Enemy damage and interruption
 - Player damage
+- Player death system
+- Death animation integration
+- Death UI
+- Restart system
 - Knockback
 - Shield / blocking
 - Block-hit audio
+- Block duration and cooldown
 - Hit-stop implementation and integration
+- Per-attack player damage balancing
+- Per-attack player knockback balancing
+- Enemy behaviour stopping after player death
 
 ### Current Task
-**Block Duration / Guard Management**
-
-Planned:
-- Limited continuous guard duration.
-- Guard depletion.
-- Guard break.
-- Recovery period.
-- Recharging guard after recovery.
-- Voluntary shield release without guard break.
+**Combat polish and balancing**
 
 ---
 
-## 8. Upcoming Combat Improvements
+## 9. Upcoming Combat Improvements
 
-- Guard duration and guard break.
 - Combat sound effects.
 - Hit-impact visual effects.
 - Combat responsiveness tuning.
 - Knockback tuning.
 - Enemy aggression and combat balance.
-- Additional death and game-over behavior.
+- Improve death and game-over presentation.
+- Further combat feedback and polish.
